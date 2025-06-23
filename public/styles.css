@@ -1,0 +1,188 @@
+/* בסיס */
+body {
+    direction: rtl;
+    font-family: "Heebo", sans-serif;
+    background: linear-gradient(to right, #f7f9fc, #e5ecf5);
+    margin: 0;
+    padding: 2em;
+    color: #333;
+}
+
+/* כרטיסים, טפסים ולוגין */
+.login-container,
+form,
+.card {
+    background: #fff;
+    padding: 1.5em;
+    margin: 1em auto;
+    max-width: 480px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* טקסט וכותרות */
+h1, h2, h3, h4 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+p {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #444;
+}
+
+a {
+    color: #2b7feb;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* שדות קלט וכפתורים */
+input, button, select {
+    display: block;
+    width: 100%;
+    padding: 0.75em;
+    margin: 0.5em 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2b7feb;
+    box-shadow: 0 0 5px rgba(43, 127, 235, 0.4);
+}
+
+button {
+    background: linear-gradient(135deg, #2b7feb, #1e62d0);
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #1e62d0, #144eaa);
+    transform: scale(1.02);
+}
+
+/* בניינים */
+#userBuildingsContainer ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#userBuildingsContainer li {
+    padding: 0.5em;
+    margin: 0.3em 0;
+    background: #e6eef9;
+    border-radius: 8px;
+    transition: 0.3s background, 0.3s transform;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+#userBuildingsContainer li:hover {
+    background: #d0e3fc;
+    transform: translateX(-5px);
+}
+
+/* טבלת דיירים */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+th, td {
+    text-align: center;
+    padding: 1em;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #2b7feb;
+    color: white;
+}
+
+tr:hover {
+    background: #f1f8ff;
+}
+
+/* אנימציות ועדינות */
+.fade-btn {
+    animation: fadeIn 0.4s ease;
+}
+
+.fade-stat {
+    margin: 0.5em 0;
+    padding: 0.75em;
+    background: #f0f4fa;
+    border-left: 4px solid #2b7feb;
+    border-radius: 6px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* הודעות סטטוס */
+.status-message {
+    padding: 1em;
+    margin-top: 1em;
+    border-radius: 8px;
+    background: #fefefe;
+    border: 1px solid #ddd;
+    color: #444;
+    animation: fadeIn 0.4s ease;
+}
+
+/* רספונסיביות */
+@media (max-width: 600px) {
+    body {
+        padding: 1em;
+    }
+
+    .login-container,
+    form,
+    .card {
+        max-width: 95%;
+    }
+
+    th, td {
+        font-size: 0.9em;
+        padding: 0.7em;
+    }
+
+    h2, h3 {
+        font-size: 1.3em;
+    }
+}

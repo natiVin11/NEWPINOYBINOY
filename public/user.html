@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>פאנל משתמש</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<h2 id="welcomeUser">ברוך הבא משתמש</h2>
+
+<div>
+    <label for="projectInput">שם פרויקט:</label>
+    <input type="text" id="projectInput" placeholder="הכנס שם פרויקט" />
+</div>
+
+<div>
+    <label for="statusSelect">סטטוס:</label>
+    <select id="statusSelect">
+        <option value="">בחר סטטוס</option>
+        <option value="ללא מענה">ללא מענה</option>
+        <option value="ענה ונקבע פגישה">ענה ונקבע פגישה</option>
+        <option value="סרבן">סרבן</option>
+        <option value="חתם">חתם</option>
+    </select>
+</div>
+
+<button onclick="loadResidents()">טען דיירים</button>
+
+<hr />
+
+<h3>בניינים משויכים אליך:</h3>
+<div id="userBuildingsContainer">טוען בניינים...</div>
+
+<div id="residentsContainer"></div>
+
+<script>
+    async function fetchUserName() {
+        try {
+            const res = await fetch('/me');
+            if (!res.ok) throw new Error('לא ניתן לטעון את שם המשתמש');
+            const data = await res.json();
+            if (data.username) {
+                document.getElementById('welcomeUser').textContent = `ברוך הבא ${data.username}`;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function loadUserBuildings() {
+        fetch('/my-buildings')
+            .then(res => {
+                if (!res.ok) throw new Error('שגיאה בטעינת הבניינים של המשתמש');
+                return res.json();
+            })
+            .then(buildings => {
+                const container = document.getElementById('userBuildingsContainer');
+                if (!container) {
+                    alert('לא נמצא אלמנט להצגת הבניינים');
+                    return;
+                }
+
+                if (buildings.length === 0) {
+                    container.innerHTML = '<p>אין בניינים משוייכים למשתמש זה.</p>';
+                    return;
+                }
+
+                const projectsMap = {};
+                buildings.forEach(b => {
+                    if (!projectsMap[b.project]) projectsMap[b.project] = [];
+                    projectsMap[b.project].push(b.address);
+                });
+
+                container.innerHTML = ''; // נקה קודם
+
+                for (const [project, addresses] of Object.entries(projectsMap)) {
+                    const projectDiv = document.createElement('div');
+                    projectDiv.innerHTML = `<h4>פרויקט: ${project}</h4>`;
+                    const ul = document.createElement('ul');
+                    addresses.forEach(address => {
+                        const li = document.createElement('li');
+                        li.textContent = address;
+                        li.style.cursor = 'pointer';
+                        li.style.color = 'blue';
+                        li.style.textDecoration = 'underline';
+                        li.onclick = () => loadResidentsByBuilding(project, address);
+                        ul.appendChild(li);
+                    });
+                    projectDiv.appendChild(ul);
+                    container.appendChild(projectDiv);
+                }
+            })
+            .catch(err => {
+                alert(err.message);
+                console.error(err);
+            });
+    }
+
+    // טוען דיירים לפי פרויקט ובניין (כתובת)
+    function loadResidentsByBuilding(project, address) {
+        fetch(`/residents-by-building?project=${encodeURIComponent(project)}&address=${encodeURIComponent(address)}`)
+            .then(res => {
+                if (!res.ok) throw new Error('שגיאה בטעינת הדיירים');
+                return res.json();
+            })
+            .then(residents => {
+                const container = document.getElementById('residentsContainer');
+                container.innerHTML = `<h3>דיירים בכתובת: ${address} בפרויקט: ${project}</h3>`;
+
+                if (residents.length === 0) {
+                    container.innerHTML += '<p>אין דיירים בבניין זה.</p>';
+                    return;
+                }
+
+                const table = document.createElement('table');
+                table.border = '1';
+                table.style.width = '100%';
+
+                // כותרות טבלה
+                table.innerHTML = `
+                    <tr>
+                        <th>שם</th>
+                        <th>מספר דירה</th>
+                        <th>טלפון</th>
+                        <th>סטטוס</th>
+                        <th>הערות</th>
+                        <th>עדכון</th>
+                    </tr>
+                `;
+
+                residents.forEach(r => {
+                    const tr = document.createElement('tr');
+
+                    const statusOptions = ['ללא מענה', 'ענה ונקבע פגישה', 'סרבן', 'חתם'];
+                    let statusSelectHtml = `<select>`;
+                    statusOptions.forEach(opt => {
+                        statusSelectHtml += `<option value="${opt}" ${r.status === opt ? 'selected' : ''}>${opt}</option>`;
+                    });
+                    statusSelectHtml += `</select>`;
+
+                    tr.innerHTML = `
+                        <td>${r.name}</td>
+                        <td>${r.apartment}</td>
+                        <td>${r.phone}</td>
+                        <td>${statusSelectHtml}</td>
+                        <td><input type="text" value="${r.note || ''}" /></td>
+                        <td><button>שמור</button></td>
+                    `;
+
+                    // מאזינים ללחצן שמור לעדכון
+                    const btn = tr.querySelector('button');
+                    btn.onclick = () => {
+                        const select = tr.querySelector('select');
+                        const noteInput = tr.querySelector('input[type=text]');
+                        const newStatus = select.value;
+                        const newNote = noteInput.value;
+
+                        fetch('/update-status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: r.id, status: newStatus, note: newNote })
+                        })
+                            .then(res => {
+                                if (!res.ok) throw new Error('שגיאה בעדכון הסטטוס');
+                                alert('הסטטוס עודכן בהצלחה');
+                                loadResidentsByBuilding(project, address); // רענון הטבלה
+                            })
+                            .catch(err => {
+                                alert(err.message);
+                                console.error(err);
+                            });
+                    };
+
+                    table.appendChild(tr);
+                });
+
+                container.appendChild(table);
+            })
+            .catch(err => {
+                alert(err.message);
+                console.error(err);
+            });
+    }
+
+    // פונקציה לטעינת דיירים לפי פרויקט וסטטוס מהבחירה (כפתור למעלה)
+    function loadResidents() {
+        const project = document.getElementById('projectInput').value.trim();
+        const status = document.getElementById('statusSelect').value;
+
+        if (!project || !status) {
+            alert('אנא מלא שם פרויקט וסטטוס');
+            return;
+        }
+
+        fetch(`/residents/${project}/${status}`)
+            .then(res => {
+                if (!res.ok) throw new Error('שגיאה בטעינת הדיירים');
+                return res.json();
+            })
+            .then(residents => {
+                // אפשר לממש כאן הצגת דיירים כמו בטבלה למעלה או איך שנוח לך
+                alert(`נמצאו ${residents.length} דיירים עם סטטוס "${status}" בפרויקט "${project}"`);
+            })
+            .catch(err => {
+                alert(err.message);
+                console.error(err);
+            });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchUserName();
+        loadUserBuildings();
+    });
+</script>
+</body>
+</html>
