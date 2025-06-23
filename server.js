@@ -6,7 +6,6 @@ const xlsx = require('xlsx');
 const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
-const app = express();
 const PORT = process.env.PORT || 3000;
 
 // קבצים סטטיים מתוך public
