@@ -6,7 +6,16 @@ const xlsx = require('xlsx');
 const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
+// קבצים סטטיים מתוך public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// דיפולט לכל route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 const app = express();
 const db = new sqlite3.Database('./data.sqlite1');
 const upload = multer({ dest: 'uploads/' });
