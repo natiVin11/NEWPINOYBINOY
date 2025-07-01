@@ -17,6 +17,24 @@ app.use(session({ secret: 'secret-key', resave: false, saveUninitialized: true }
 app.use(express.static('public'));
 
 
+
+// Example for Node.js with Express
+app.post('/delete-user', async (req, res) => {
+    const { id } = req.body;
+    // Add authentication and authorization checks here.
+    // Ensure an admin cannot delete themselves or other admins accidentally.
+
+    try {
+        // Example: Delete user and their assignments
+        await db.query('DELETE FROM assignments WHERE userId = ?', [id]);
+        await db.query('DELETE FROM users WHERE id = ?', [id]);
+        res.json({ success: true, message: 'User deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete user.' });
+    }
+});
+
 // נתיב שמחזיר פרטי משתמש מתוך ה-session
 app.get('/me', (req, res) => {
     if (req.session && req.session.user) {
