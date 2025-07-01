@@ -113,7 +113,7 @@
 
 <script src="admin.js"></script>
 <script>
-    // טיפול ב-submit של הטופס להוספת משתמש חדש באמצעות ה-JS שלך (admin.js)
+    // טיפול ב-submit של הטופס להוספת משתמש חדש
     document.getElementById('addUserForm').addEventListener('submit', e => {
         e.preventDefault();
         const username = document.getElementById('newUsername').value.trim();
@@ -137,7 +137,7 @@
                 document.getElementById('newUsername').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('newRole').value = '';
-                loadUsers();
+                loadUsers(); // Reload users after adding a new one
             })
             .catch(err => {
                 alert(err.message);
