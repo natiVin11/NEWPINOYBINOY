@@ -6,6 +6,31 @@ const STATUS_OPTIONS = [
     "חתם"
 ];
 
+function deleteProject(project) {
+    if (!confirm(`Are you sure you want to delete the project "${project}"? This action cannot be undone.`)) {
+        return;
+    }
+    fetch('/delete-project', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Project deleted successfully!');
+            loadAssignments(); // Refresh the list of assignments
+            loadAllProjects(); // Refresh the list of project stats
+        } else {
+            alert(`Error deleting project: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the project.');
+    });
+}
+
 function loadAssignments() {
     fetch('/all-project-names')
         .then(res => res.json())
